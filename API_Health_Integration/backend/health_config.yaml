@@ -1,0 +1,45 @@
+# Health policy for the Integration Health Monitor.
+# These are DEMO ASSUMPTIONS to validate with Marcus (Platform Ops),
+# not customer SLAs.
+
+health_thresholds:
+  # Fewer requests than this in the window -> UNKNOWN (not enough evidence).
+  minimum_requests: 5
+
+  # Percent of requests that failed (errors + timeouts).
+  failure_rate:
+    degraded: 10
+    critical: 40
+
+  # Percent of requests that timed out (no response at all).
+  timeout_rate:
+    degraded: 5
+    critical: 20
+
+  # Average latency of SUCCESSFUL requests, relative to each integration's SLO.
+  #   degraded: avg >= SLO
+  #   critical: avg >= SLO * critical_multiplier
+  latency:
+    critical_multiplier: 2
+
+# Per-integration settings. Unknown integrations fall back to "default".
+# tier is used to order the "Needs Attention" list (critical tier first).
+integrations:
+  default:
+    tier: standard
+    latency_slo_ms: 1000
+  "Slack Notifications":
+    tier: low
+    latency_slo_ms: 500
+  "ADP Payroll Sync":
+    tier: critical
+    latency_slo_ms: 1000
+  "DocuSign Envelope API":
+    tier: standard
+    latency_slo_ms: 1500   # normally ~680 ms; a global 500 ms limit would falsely flag it
+  "Workday Directory Sync":
+    tier: standard
+    latency_slo_ms: 500
+  "Greenhouse ATS Sync":
+    tier: standard
+    latency_slo_ms: 1000
